@@ -1,10 +1,171 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <meta charset="utf-8">
+    <title></title>
 </head>
 <body>
-Hello World
+
+<canvas id="my-canvas" style="width: 512px; height: 512px"></canvas>
+
+<h1>hello, world!</h1>
+
+<script type="text/javascript">
+    console.log("hello, world!");
+
+    let a = 1; // 数値
+    let b = 'abc'; // 文字列はクォーテーションもしくはだぶるクォーテーションで括る
+    console.log("aは数値" + a);
+    console.log("bは文字列" + b)
+
+    a = true; // 真
+    b = false; // 偽
+    console.log("a = " + a);
+    console.log("b = " + b)
+
+    // 配列の宣言
+    a = [];
+    b = [1,2,3];
+
+    // 配列に要素を加える
+    a.push(1);
+    a.push(2);
+    a.push('hello, world');
+    b.push(4);
+
+    // 配列を参照する
+    console.log("a[0] = " + a[0]);
+    a[0] = 10;
+
+    console.log(a);
+    console.log(b)
+
+    // 配列の大きさ
+    console.log("aの要素数は " + a.length);
+    console.log("bの要素数は " + b.length);
+
+    // function文による定義（実行前に定義される）
+    function hi(name) {
+        return "hi, " + name;
+    }
+    console.log(hi("Taro"));
+
+    // 関数リテラルによる定義 (実行されるときに定義される)
+    let say_bye = function(name) {
+        return "bye, " + name;
+    };
+    console.log(say_bye("Taro"));
+
+    // Arrayオブジェクト
+    let arr = new Array(2);
+    arr[0] = 1;
+    arr[1] = 2;
+    arr.push("hello");
+    console.log(arr);
+
+    //（補足）2次元配列
+    let arr_2d = new Array(3);
+    for(let i = 0; i < 3; i++) {
+        arr_2d[i] = new Array(3);
+        for(let j = 0; j < 3; j++) {
+            arr_2d[i][j] = 0;
+        }
+    }
+
+    // Dateオブジェクト
+    let now = new Date();
+    console.log(now);
+    now.setMonth(now.getMonth() + 3);　//３か月後
+    now.setDate(now.getDate() + 3); //3日後
+    now.setHours(now.getHours() + 3); //3時間後
+    now.setMinutes(now.getMinutes() + 3); //3分後
+    console.log(now);
+
+    // Mathオブジェクト
+    let random = Math.random(); // 0.0-1.0の乱数
+    console.log(random);
+    let round = Math.round(random); // 四捨五入
+    console.log(round);
+    let y = Math.sin(Math.PI/2.0); // サイン関数
+    console.log(y);
+
+    // ハッシュ
+    let user = {
+        name : 'taro', // key = name, value = taro
+        age : 20,
+        gender: 'male'
+    };
+
+    // キーを指定してアクセス
+    console.log(user['name']);
+    console.log(user.name);
+
+    // 値を変更
+    user.age = 30;
+    console.log(user.age);
+
+    // キーを追加
+    user['password'] = '123456789';
+    user.hobby = 'football';
+    console.log(user);
+
+    //255*255*3の配列image
+    let image = new Array(512);
+    for (let i = 0; i < image.length; i++) {
+        image[i] = new Array(512);
+        for (let j = 0; j < image.length; j++) {
+            image[i][j] = new Array(3);
+        }
+    }
+
+    //配列imageに0~255の乱数を代入
+    for(let i = 0; i < image.length; i++){
+        for(let j = 0; j < image[0].length; j++){
+            for(let k = 0; k < image[0][0].length; k++){
+                image[i][j][k] = Math.floor(Math.random()*255);
+            }
+        }
+    }
+
+    //配列imageを平滑化
+
+    let image_mean = [];
+    for(let i = 0; i < 512; i = i + 2){
+        let line = [];
+        for(let j = 0; j < 512; j = j + 2){
+            //red
+            let red_sum = image[i][j][0] + image[i][j + 1][0] + image[i + 1][j][0] + image[i + 1][j + 1][0];
+            let red_ave = red_sum / 4;
+            //green
+            let green_sum = image[i][j][1] + image[i][j + 1][1] + image[i + 1][j][1] + image[i + 1][j + 1][1];
+            let green_ave = green_sum / 4;
+            //blue
+            let blue_sum = image[i][j][2] + image[i][j + 1][2] + image[i + 1][j][2] + image[i + 1][j + 1][2];
+            let blue_ave = blue_sum / 4;
+
+            line.push([red_ave, green_ave, blue_ave], [red_ave, green_ave, blue_ave]);
+        }
+        image_mean.push(line);
+        image_mean.push(line);
+    }
+
+    //画像の表示
+    let canvas = document.getElementById('my-canvas');
+    let context = canvas.getContext('2d');
+    let imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+    let width = imageData.width;
+    let height = imageData.height;
+    let index = 0;
+    for(let x = 0; x < width; x++){
+        for(let y = 0; y < height; y++){
+            index = ((width * y) + x) * 4;
+            imageData.data[index] = image_mean[x][y][0]; //red: 0~255
+            imageData.data[index + 1] = image_mean[x][y][1]; //green: 0~255
+            imageData.data[index + 2] = image_mean[x][y][2]; //blue: 0~255
+            imageData.data[index + 3] = 128; //alpha: 0~255
+        }
+    }
+    context.putImageData(imageData, 0, 0);
+</script>
 </body>
 </html>
